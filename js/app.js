@@ -12,6 +12,11 @@ function initEventListeners() {
     listaCursos.addEventListener('click', obtenerCursoSeleccionado);
     // elimina curso del carrito
     carrito.addEventListener('click', eliminarArticulos);
+    // muestra los cursos del localstorage en el carrito
+    document.addEventListener('DOMContentLoaded', () => {
+        articulos = JSON.parse(localStorage.getItem('localstorageArticles')) || [];
+        mostrarCarritoHTML();
+    });
     // vacia el carrito
     carrito.addEventListener('click', vaciarArticulos);
 }
@@ -38,7 +43,7 @@ function leerDatosCurso(curso) {
         titulo: curso.querySelector('h4').textContent,
         autor: curso.querySelector('p').textContent,
         calificacion: curso.querySelector('.info-card img').src,
-        precio: curso.querySelector('.precio span').textContent,
+        precio: curso.querySelector('.lastName span').textContent,
         id: curso.querySelector('a').getAttribute('data-id'),
         cantidad: 1
     }
@@ -47,7 +52,7 @@ function leerDatosCurso(curso) {
     adicionarArticulos(informacionCurso);
 }
 
-// adciona elementos al arreglo de articulos
+// adciona elementos al localitiesArray de articulos
 function adicionarArticulos(informacionCurso) {
     // valida si ya existe el articulo o curso
     const existe = articulos.some(curso => curso.id === (informacionCurso.id));
@@ -64,7 +69,7 @@ function adicionarArticulos(informacionCurso) {
 
 // acualiza la cantidad del aticulo o curso
 function actualizarCantidad(informacionCurso) {
-    // .map(): crea un nuevo arreglo de cursos
+    // .map(): crea un nuevo localitiesArray de cursos
     const cursos = articulos.map(curso => {
         if (curso.id === (informacionCurso.id)) {
             console.log('actualizando carrito...');
@@ -81,9 +86,9 @@ function actualizarCantidad(informacionCurso) {
 // elimina curso del carrito
 function eliminarArticulos(event) {
     if (event.target.classList.contains('borrar-curso')) {
-        console.log('eliminando carrito');
+        console.log('eliminando carrito...');
         const cursoId = event.target.getAttribute('data-id');
-        // elimina del arreglo de articulos por el data-id
+        // elimina del localitiesArray de articulos por el data-id
         articulos = articulos.filter(curso => curso.id !== cursoId);
         mostrarCarritoHTML();//Itera sobre el carrito y lo muestra en el HTML
 
@@ -91,11 +96,11 @@ function eliminarArticulos(event) {
 }
 
 function vaciarArticulos() {
-    articulos = [];//reseteamos el arreglo
+    articulos = [];//reseteamos el localitiesArray
     limpiarCarritoHTML();//eliminamos toodo el HTML
 }
 
-// Muestra los articulos edel carrito de compras en en HTML
+// Muestra los articulos del carrito de compras en en HTML
 function mostrarCarritoHTML() {
     limpiarCarritoHTML();
     // recorre el carrito y genera el HTML
@@ -114,9 +119,10 @@ function mostrarCarritoHTML() {
             <a href="#" class="borrar-curso" data-id="${id}"> X </a>
         </td >        
         `;
-        // adiciona el HTML delcarrito en el <tbody> </tbody>
+        // adiciona el HTML del carrito en el <tbody> </tbody>
         contenedorCarrito.appendChild(fila);
     });
+    addArticlesToLocalStorage();
 }
 
 // Limpia el carrito borrando los curso anterior del </tbody> para que no se repita 
@@ -126,5 +132,10 @@ function limpiarCarritoHTML() {
         // eliminando por referencia: forma optima
         contenedorCarrito.removeChild(contenedorCarrito.firstChild);
     }
+}
+
+// Sincroniza los articulos adicionados al carrito con el localstorage
+function addArticlesToLocalStorage() {
+    localStorage.setItem('localstorageArticles', JSON.stringify(articulos));
 }
 
